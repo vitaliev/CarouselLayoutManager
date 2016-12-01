@@ -286,8 +286,8 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onMeasure(final RecyclerView.Recycler recycler, final RecyclerView.State state, final int widthSpec, final int heightSpec) {
-        mDecoratedChildHeight = 0;
-        mDecoratedChildWidth = 0;
+        mDecoratedChildHeight = null;
+        mDecoratedChildWidth = null;
 
         super.onMeasure(recycler, state, widthSpec, heightSpec);
     }
