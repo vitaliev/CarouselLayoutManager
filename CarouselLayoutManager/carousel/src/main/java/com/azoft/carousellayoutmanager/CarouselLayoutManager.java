@@ -87,6 +87,8 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager {
         mOrientation = orientation;
         mCircleLayout = circleLayout;
         mPendingScrollPosition = INVALID_POSITION;
+        mDecoratedChildHeight = 0;
+        mDecoratedChildWidth = 0;
     }
 
     /**
@@ -284,8 +286,8 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onMeasure(final RecyclerView.Recycler recycler, final RecyclerView.State state, final int widthSpec, final int heightSpec) {
-        mDecoratedChildHeight = null;
-        mDecoratedChildWidth = null;
+        mDecoratedChildHeight = 0;
+        mDecoratedChildWidth = 0;
 
         super.onMeasure(recycler, state, widthSpec, heightSpec);
     }
