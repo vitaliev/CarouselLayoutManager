@@ -621,20 +621,20 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager {
         return Math.round(getCurrentScrollPosition()) * getScrollItemSize() - mLayoutHelper.mScrollOffset;
     }
 
-    int getOffsetForCurrentView(@NonNull final View view) {
-        final int position = getPosition(view);
-        int centerItemPosition = getCenterItemPosition();
+	int getOffsetForCurrentView(@NonNull final View view) {
+		final int position = getPosition(view);
+		final int fullCircles = mLayoutHelper.mScrollOffset / (mItemsCount * getScrollItemSize());
+		int fullOffset = fullCircles * mItemsCount * getScrollItemSize();
+		if (0 > mLayoutHelper.mScrollOffset) {
+			fullOffset -= 1;
+		}
 
-        int offsetCount = position - centerItemPosition;
-        if (Math.abs(offsetCount) > getMaxVisibleItems()) {
-            if (offsetCount > 0) {
-                offsetCount = offsetCount - getItemCount();
-            } else {
-                offsetCount = getItemCount() + offsetCount;
-            }
-        }
-        return -offsetCount * getScrollItemSize();
-    }
+		if (0 == fullOffset || 0 < Math.signum(fullOffset)) {
+			return mLayoutHelper.mScrollOffset - position * getScrollItemSize() - fullOffset;
+		} else {
+			return mLayoutHelper.mScrollOffset + position * getScrollItemSize() - fullOffset;
+		}
+	}
 
     /**
      * Helper method that make scroll in range of [0, count). Generally this method is needed only for cycle layout.
