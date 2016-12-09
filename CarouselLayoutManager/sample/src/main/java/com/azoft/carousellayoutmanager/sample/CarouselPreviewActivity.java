@@ -6,10 +6,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import java.util.Locale;
+import java.util.Random;
 
 import com.azoft.carousellayoutmanager.CarouselLayoutManager;
 import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
@@ -18,10 +22,8 @@ import com.azoft.carousellayoutmanager.DefaultChildSelectionListener;
 import com.azoft.carousellayoutmanager.sample.databinding.ActivityCarouselPreviewBinding;
 import com.azoft.carousellayoutmanager.sample.databinding.ItemViewBinding;
 
-import java.util.Locale;
-import java.util.Random;
-
 public class CarouselPreviewActivity extends AppCompatActivity {
+    private static final String TAG = "Carousel";
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -84,16 +86,9 @@ public class CarouselPreviewActivity extends AppCompatActivity {
         }, recyclerView, layoutManager);
 
         layoutManager.addOnItemSelectionListener(new CarouselLayoutManager.OnCenterItemSelectionListener() {
-
             @Override
-            public void onCenterItemChanged(final int adapterPosition) {
-                if (CarouselLayoutManager.INVALID_POSITION != adapterPosition) {
-                    final int value = adapter.mPosition[adapterPosition];
-/*
-                    adapter.mPosition[adapterPosition] = (value % 10) + (value / 10 + 1) * 10;
-                    adapter.notifyItemChanged(adapterPosition);
-*/
-                }
+            public void onCenterItemChanged(int oldItemPosition, int newItemPosition) {
+                Log.d(TAG, String.format(Locale.US, "Center Item was changed from %s to %s", oldItemPosition, newItemPosition));
             }
         });
     }

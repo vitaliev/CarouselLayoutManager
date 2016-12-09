@@ -306,7 +306,7 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
     public void onLayoutChildren(@NonNull final RecyclerView.Recycler recycler, @NonNull final RecyclerView.State state) {
         if (0 == state.getItemCount()) {
             removeAndRecycleAllViews(recycler);
-            selectItemCenterPosition(INVALID_POSITION);
+            selectItemCenterPosition(INVALID_POSITION, INVALID_POSITION);
             return;
         }
 
@@ -370,22 +370,23 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
 
     private void detectOnItemSelectionChanged(final float currentScrollPosition, final RecyclerView.State state) {
         final float absCurrentScrollPosition = makeScrollPositionInRange0ToCount(currentScrollPosition, state.getItemCount());
-        final int centerItem = Math.round(absCurrentScrollPosition);
+        final int newCenterItem = Math.round(absCurrentScrollPosition);
+        final int previousCenterItem = mCenterItemPosition;
 
-        if (mCenterItemPosition != centerItem) {
-            mCenterItemPosition = centerItem;
+        if (previousCenterItem != newCenterItem) {
+            mCenterItemPosition = newCenterItem;
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    selectItemCenterPosition(centerItem);
+                    selectItemCenterPosition(previousCenterItem, newCenterItem);
                 }
             });
         }
     }
 
-    private void selectItemCenterPosition(final int centerItem) {
+    private void selectItemCenterPosition(final int previousCenterItem, final int newCenterItem) {
         for (final OnCenterItemSelectionListener onCenterItemSelectionListener : mOnCenterItemSelectionListeners) {
-            onCenterItemSelectionListener.onCenterItemChanged(centerItem);
+            onCenterItemSelectionListener.onCenterItemChanged(previousCenterItem, newCenterItem);
         }
     }
 
@@ -689,9 +690,10 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
          * This listener will be triggered on <b>every</b> layout operation if item was changed.
          * Do not do any expensive operations in this method since this will effect scroll experience.
          *
-         * @param adapterPosition current layout center item
+         * @param oldItemPosition previous layout center item
+         * @param newItemPosition current layout center item
          */
-        void onCenterItemChanged(final int adapterPosition);
+        void onCenterItemChanged(int oldItemPosition, int newItemPosition);
     }
 
     /**
