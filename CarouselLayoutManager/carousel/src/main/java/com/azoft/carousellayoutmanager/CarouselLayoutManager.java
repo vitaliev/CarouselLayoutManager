@@ -36,7 +36,7 @@ import java.util.List;
  * <br />
  */
 @SuppressWarnings({"ClassWithTooManyMethods", "OverlyComplexClass", "unused"})
-public class CarouselLayoutManager extends RecyclerView.LayoutManager {
+public class CarouselLayoutManager extends RecyclerView.LayoutManager implements RecyclerView.SmoothScroller.ScrollVectorProvider {
 
     public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
     public static final int VERTICAL = OrientationHelper.VERTICAL;
@@ -206,7 +206,7 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Nullable
-    protected PointF computeScrollVectorForPosition(final int targetPosition) {
+    public PointF computeScrollVectorForPosition(final int targetPosition) {
         if (0 == getChildCount()) {
             return null;
         }
