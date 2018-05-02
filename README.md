@@ -1,16 +1,22 @@
-Android LayoutManager for RecyclerView to support Carousel view style
+CarouselLayoutManager for RecyclerView
 ======================
 
-## Examples
+[![Download](https://api.bintray.com/packages/minyushov/android/carousel/images/download.svg)](https://bintray.com/minyushov/android/carousel/_latestVersion)
 
 ![Example](resources/carousel_work_small.gif "working example")
 
 ![Example](resources/carousel_double_work_small.gif "working example")
 
-## Integration with Gradle
+## Integration
 
 ```
-    compile 'com.azoft.carousellayoutmanager:carousel:1.1.8'
+repositories {
+  maven { url  "https://dl.bintray.com/minyushov/android" }
+}
+
+dependencies {
+  implementation 'com.minyushov.android:carousel:1.1.14'
+}
 ```
 
 ## Description
