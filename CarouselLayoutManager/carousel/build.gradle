@@ -1,10 +1,14 @@
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.1.2'
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2"
         classpath "com.github.dcendents:android-maven-gradle-plugin:1.4.1"
         classpath "com.github.dcendents:android-maven-plugin:1.2"
@@ -21,7 +25,7 @@ group = "com.minyushov.carousellayoutmanager"
 final def siteUrl = 'https://github.com/minyushov/CarouselLayoutManager'
 final def gitUrl = "https://github.com/minyushov/CarouselLayoutManager.git"
 // This is the library version used when deploying the artifact
-version = "1.1.13"
+version = "1.1.14"
 
 final Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
@@ -75,13 +79,13 @@ install {
 //////////////////////////////// Upload to BinTray ////////////////////////////////
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     resourcePrefix "carousellayoutmanager__"
 
     defaultConfig {
-        minSdkVersion 11
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 27
         versionCode 1
         versionName version
     }
@@ -97,12 +101,12 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:support-v4:25.0.1'
-    compile 'com.android.support:design:25.0.1'
-    compile 'com.android.support:recyclerview-v7:25.0.1'
-    javadocDeps 'com.android.support:support-annotations:25.0.1'
-    javadocDeps 'com.android.support:recyclerview-v7:25.0.1'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    javadocDeps 'com.android.support:support-annotations:27.1.1'
+    javadocDeps 'com.android.support:recyclerview-v7:27.1.1'
 }
 
 task sourcesJar(type: Jar) {

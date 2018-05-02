@@ -35,7 +35,7 @@ import java.util.List;
  * So like layout_height is not {@link ViewGroup.LayoutParams#MATCH_PARENT} for {@link CarouselLayoutManager#VERTICAL}<br />
  * <br />
  */
-@SuppressWarnings({"ClassWithTooManyMethods", "OverlyComplexClass", "unused"})
+@SuppressWarnings({ "ClassWithTooManyMethods", "OverlyComplexClass", "unused" })
 public class CarouselLayoutManager extends RecyclerView.LayoutManager implements RecyclerView.SmoothScroller.ScrollVectorProvider {
 
     public static final int HORIZONTAL = OrientationHelper.HORIZONTAL;
@@ -53,6 +53,7 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
 
     private final int mOrientation;
     private final boolean mCircleLayout;
+    private boolean respectLayoutPaddings = false;
 
     private int mPendingScrollPosition;
 
@@ -68,27 +69,31 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
     private CarouselSavedState mPendingCarouselSavedState;
 
     /**
-     * @param orientation should be {@link #VERTICAL} or {@link #HORIZONTAL}
+     * @param orientation
+     * 		should be {@link #VERTICAL} or {@link #HORIZONTAL}
      */
     @SuppressWarnings("unused")
     public CarouselLayoutManager(final int orientation) {
-        this(orientation, CIRCLE_LAYOUT);
+        this(orientation, CIRCLE_LAYOUT, false);
     }
 
     /**
      * If circleLayout is true then all items will be in cycle. Scroll will be infinite on both sides.
      *
-     * @param orientation  should be {@link #VERTICAL} or {@link #HORIZONTAL}
-     * @param circleLayout true for enabling circleLayout
+     * @param orientation
+     * 		should be {@link #VERTICAL} or {@link #HORIZONTAL}
+     * @param circleLayout
+     * 		true for enabling circleLayout
      */
     @SuppressWarnings("unused")
-    public CarouselLayoutManager(final int orientation, final boolean circleLayout) {
+    public CarouselLayoutManager(final int orientation, final boolean circleLayout, boolean respectLayoutPaddings) {
         if (HORIZONTAL != orientation && VERTICAL != orientation) {
             throw new IllegalArgumentException("orientation should be HORIZONTAL or VERTICAL");
         }
-        mOrientation = orientation;
-        mCircleLayout = circleLayout;
-        mPendingScrollPosition = INVALID_POSITION;
+        this.mOrientation = orientation;
+        this.mCircleLayout = circleLayout;
+        this.mPendingScrollPosition = INVALID_POSITION;
+        this.respectLayoutPaddings = respectLayoutPaddings;
     }
 
     /**
@@ -97,7 +102,8 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
      * <br />
      * Generally this method should be used for scaling and translating view item for better (different) view presentation of layouting.
      *
-     * @param postLayoutListener listener for item layout changes. Can be null.
+     * @param postLayoutListener
+     * 		listener for item layout changes. Can be null.
      */
     @SuppressWarnings("unused")
     public void setPostLayoutListener(@Nullable final PostLayoutListener postLayoutListener) {
@@ -109,7 +115,8 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
      * Setup maximum visible (layout) items on each side of the center item.
      * Basically during scrolling there can be more visible items (+1 item on each side), but in idle state this is the only reached maximum.
      *
-     * @param maxVisibleItems should be great then 0, if bot an {@link IllegalAccessException} will be thrown
+     * @param maxVisibleItems
+     * 		should be great then 0, if bot an {@link IllegalAccessException} will be thrown
      */
     @CallSuper
     @SuppressWarnings("unused")
@@ -123,6 +130,7 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
 
     /**
      * @return current setup for maximum visible items.
+     *
      * @see #setMaxVisibleItems(int)
      */
     @SuppressWarnings("unused")
@@ -137,6 +145,7 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
 
     /**
      * @return current layout orientation
+     *
      * @see #VERTICAL
      * @see #HORIZONTAL
      */
@@ -162,14 +171,16 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
     }
 
     /**
-     * @param onCenterItemSelectionListener listener that will trigger when ItemSelectionChanges. can't be null
+     * @param onCenterItemSelectionListener
+     * 		listener that will trigger when ItemSelectionChanges. can't be null
      */
     public void addOnItemSelectionListener(@NonNull final OnCenterItemSelectionListener onCenterItemSelectionListener) {
         mOnCenterItemSelectionListeners.add(onCenterItemSelectionListener);
     }
 
     /**
-     * @param onCenterItemSelectionListener listener that was previously added by {@link #addOnItemSelectionListener(OnCenterItemSelectionListener)}
+     * @param onCenterItemSelectionListener
+     * 		listener that was previously added by {@link #addOnItemSelectionListener(OnCenterItemSelectionListener)}
      */
     public void removeOnItemSelectionListener(@NonNull final OnCenterItemSelectionListener onCenterItemSelectionListener) {
         mOnCenterItemSelectionListeners.remove(onCenterItemSelectionListener);
@@ -241,9 +252,13 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
      * <br />
      * This method may do relayout work.
      *
-     * @param diff     distance that we want to scroll by
-     * @param recycler Recycler to use for fetching potentially cached views for a position
-     * @param state    Transient state of RecyclerView
+     * @param diff
+     * 		distance that we want to scroll by
+     * @param recycler
+     * 		Recycler to use for fetching potentially cached views for a position
+     * @param state
+     * 		Transient state of RecyclerView
+     *
      * @return distance that we actually scrolled by
      */
     @CallSuper
@@ -355,8 +370,8 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         generateLayoutOrder(currentScrollPosition, state);
         detachAndScrapAttachedViews(recycler);
 
-        final int width = getWidthNoPadding();
-        final int height = getHeightNoPadding();
+        final int width = getWidth();
+        final int height = getHeight();
         if (VERTICAL == mOrientation) {
             fillDataVertical(recycler, width, height, childMeasuringNeeded);
         } else {
@@ -464,10 +479,13 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
      * (this item should layout last). So this method will calculate layout order and fill up {@link #mLayoutHelper} object.
      * This object will be filled by only needed to layout items. Non visible items will not be there.
      *
-     * @param currentScrollPosition current scroll position this is a value that indicates position of center item
-     *                              (if this value is int, then center item is really in the center of the layout, else it is near state).
-     *                              Be aware that this value can be in any range is it is cycle layout
-     * @param state                 Transient state of RecyclerView
+     * @param currentScrollPosition
+     * 		current scroll position this is a value that indicates position of center item
+     * 		(if this value is int, then center item is really in the center of the layout, else it is near state).
+     * 		Be aware that this value can be in any range is it is cycle layout
+     * @param state
+     * 		Transient state of RecyclerView
+     *
      * @see #getCurrentScrollPosition()
      */
     private void generateLayoutOrder(final float currentScrollPosition, @NonNull final RecyclerView.State state) {
@@ -512,12 +530,19 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         }
     }
 
-    public int getWidthNoPadding() {
-        return getWidth() - getPaddingStart() - getPaddingEnd();
+    public int getWidth() {
+        if (!respectLayoutPaddings) {
+            return super.getWidth() - getPaddingStart() - getPaddingEnd();
+        }
+        return super.getWidth();
     }
 
-    public int getHeightNoPadding() {
-        return getHeight() - getPaddingEnd() - getPaddingStart();
+    public int getHeight() {
+        if (!respectLayoutPaddings) {
+            return super.getHeight() - getPaddingEnd() - getPaddingStart();
+        } else {
+            return super.getHeight();
+        }
     }
 
     private View bindChild(final int position, @NonNull final RecyclerView.Recycler recycler, final boolean childMeasuringNeeded) {
@@ -539,8 +564,10 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
      * ||||| - center item<br />
      * ----- - area bellow it (it has the same size as are above center item)<br />
      *
-     * @param itemPositionDiff current item difference with layout center line. if this is 0, then this item center is in layout center line.
-     *                         if this is 1 then this item is bellow the layout center line in the full item size distance.
+     * @param itemPositionDiff
+     * 		current item difference with layout center line. if this is 0, then this item center is in layout center line.
+     * 		if this is 1 then this item is bellow the layout center line in the full item size distance.
+     *
      * @return offset in scroll px coordinates.
      */
     protected int getCardOffsetByPositionDiff(final float itemPositionDiff) {
@@ -548,9 +575,9 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
 
         final int dimenDiff;
         if (VERTICAL == mOrientation) {
-            dimenDiff = (getHeightNoPadding() - getDecoratedChildHeight()) / 2;
+            dimenDiff = (getHeight() - getDecoratedChildHeight()) / 2;
         } else {
-            dimenDiff = (getWidthNoPadding() - getDecoratedChildWidth()) / 2;
+            dimenDiff = (getWidth() - getDecoratedChildWidth()) / 2;
         }
         //noinspection NumericCastThatLosesPrecision
         return (int) Math.round(Math.signum(itemPositionDiff) * dimenDiff * smoothPosition);
@@ -562,12 +589,15 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
      * This code is full of maths. If you want to make items move in a different way, probably you should override this method.<br />
      * Please see code comments for better explanations.
      *
-     * @param itemPositionDiff current item difference with layout center line. if this is 0, then this item center is in layout center line.
-     *                         if this is 1 then this item is bellow the layout center line in the full item size distance.
+     * @param itemPositionDiff
+     * 		current item difference with layout center line. if this is 0, then this item center is in layout center line.
+     * 		if this is 1 then this item is bellow the layout center line in the full item size distance.
+     *
      * @return smooth position offset. needed for scroll calculation and better user experience.
+     *
      * @see #getCardOffsetByPositionDiff(float)
      */
-    @SuppressWarnings({"MagicNumber", "InstanceMethodNamingConvention"})
+    @SuppressWarnings({ "MagicNumber", "InstanceMethodNamingConvention" })
     protected double convertItemPositionDiffToSmoothPositionDiff(final float itemPositionDiff) {
         // generally item moves the same way above center and bellow it. So we don't care about diff sign.
         final float absIemPositionDiff = Math.abs(itemPositionDiff);
@@ -622,26 +652,29 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         return Math.round(getCurrentScrollPosition()) * getScrollItemSize() - mLayoutHelper.mScrollOffset;
     }
 
-	int getOffsetForCurrentView(@NonNull final View view) {
-		final int position = getPosition(view);
-		final int fullCircles = mLayoutHelper.mScrollOffset / (mItemsCount * getScrollItemSize());
-		int fullOffset = fullCircles * mItemsCount * getScrollItemSize();
-		if (0 > mLayoutHelper.mScrollOffset) {
-			fullOffset -= 1;
-		}
+    int getOffsetForCurrentView(@NonNull final View view) {
+        final int position = getPosition(view);
+        final int fullCircles = mLayoutHelper.mScrollOffset / (mItemsCount * getScrollItemSize());
+        int fullOffset = fullCircles * mItemsCount * getScrollItemSize();
+        if (0 > mLayoutHelper.mScrollOffset) {
+            fullOffset -= 1;
+        }
 
-		if (0 == fullOffset || 0 < Math.signum(fullOffset)) {
-			return mLayoutHelper.mScrollOffset - position * getScrollItemSize() - fullOffset;
-		} else {
-			return mLayoutHelper.mScrollOffset + position * getScrollItemSize() - fullOffset;
-		}
-	}
+        if (0 == fullOffset || 0 < Math.signum(fullOffset)) {
+            return mLayoutHelper.mScrollOffset - position * getScrollItemSize() - fullOffset;
+        } else {
+            return mLayoutHelper.mScrollOffset + position * getScrollItemSize() - fullOffset;
+        }
+    }
 
     /**
      * Helper method that make scroll in range of [0, count). Generally this method is needed only for cycle layout.
      *
-     * @param currentScrollPosition any scroll position range.
-     * @param count                 adapter items count
+     * @param currentScrollPosition
+     * 		any scroll position range.
+     * @param count
+     * 		adapter items count
+     *
      * @return good scroll position in range of [0, count)
      */
     private static float makeScrollPositionInRange0ToCount(final float currentScrollPosition, final int count) {
@@ -676,9 +709,12 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         /**
          * Called after child layout finished. Generally you can do any translation and scaling work here.
          *
-         * @param child                    view that was layout
-         * @param itemPositionToCenterDiff view center line difference to layout center. if > 0 then this item is bellow layout center line, else if not
-         * @param orientation              layoutManager orientation {@link #getLayoutDirection()}
+         * @param child
+         * 		view that was layout
+         * @param itemPositionToCenterDiff
+         * 		view center line difference to layout center. if > 0 then this item is bellow layout center line, else if not
+         * @param orientation
+         * 		layoutManager orientation {@link #getLayoutDirection()}
          */
         ItemTransformation transformChild(@NonNull final View child, final float itemPositionToCenterDiff, final int orientation);
     }
@@ -690,8 +726,10 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
          * This listener will be triggered on <b>every</b> layout operation if item was changed.
          * Do not do any expensive operations in this method since this will effect scroll experience.
          *
-         * @param oldItemPosition previous layout center item
-         * @param newItemPosition current layout center item
+         * @param oldItemPosition
+         * 		previous layout center item
+         * @param newItemPosition
+         * 		current layout center item
          */
         void onCenterItemChanged(int oldItemPosition, int newItemPosition);
     }
@@ -721,7 +759,8 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         /**
          * Called before any fill calls. Needed to recycle old items and init new array list. Generally this list is an array an it is reused.
          *
-         * @param layoutCount items count that will be layout
+         * @param layoutCount
+         * 		items count that will be layout
          */
         void initLayoutOrder(final int layoutCount) {
             if (null == mLayoutOrder || mLayoutOrder.length != layoutCount) {
@@ -736,13 +775,16 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         /**
          * Called during layout generation process of filling this list. Should be called only after {@link #initLayoutOrder(int)} method call.
          *
-         * @param arrayPosition       position in layout order
-         * @param itemAdapterPosition adapter position of item for future data filling logic
-         * @param itemPositionDiff    difference of current item scroll position and center item position.
-         *                            if this is a center item and it is in real center of layout, then this will be 0.
-         *                            if current layout is not in the center, then this value will never be int.
-         *                            if this item center is bellow layout center line then this value is greater then 0,
-         *                            else less then 0.
+         * @param arrayPosition
+         * 		position in layout order
+         * @param itemAdapterPosition
+         * 		adapter position of item for future data filling logic
+         * @param itemPositionDiff
+         * 		difference of current item scroll position and center item position.
+         * 		if this is a center item and it is in real center of layout, then this will be 0.
+         * 		if current layout is not in the center, then this value will never be int.
+         * 		if this item center is bellow layout center line then this value is greater then 0,
+         * 		else less then 0.
          */
         void setLayoutOrder(final int arrayPosition, final int itemAdapterPosition, final float itemPositionDiff) {
             final LayoutOrder item = mLayoutOrder[arrayPosition];
@@ -753,7 +795,9 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         /**
          * Checks is this screen Layout has this adapterPosition view in layout
          *
-         * @param adapterPosition adapter position of item for future data filling logic
+         * @param adapterPosition
+         * 		adapter position of item for future data filling logic
+         *
          * @return true is adapterItem is in layout
          */
         boolean hasAdapterPosition(final int adapterPosition) {
