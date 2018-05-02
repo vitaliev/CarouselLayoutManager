@@ -1,26 +1,30 @@
 buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
-    }
+  ext {
+    androidMinSdkVersion = 14
+    androidCompileSdkVersion = 27
+    androidTargetSdkVersion = 27
+    androidSupportLibraryVersion = "27.1.1"
+  }
+
+  repositories {
+    jcenter()
+    google()
+    maven { url 'https://dl.bintray.com/minyushov/gradle' }
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.1.2'
+    classpath "com.minyushov.gradle:bintray:1.0.4"
+  }
 }
 
 allprojects {
-    repositories {
-        jcenter()
-        maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
-    }
+  repositories {
+    jcenter()
+    google()
+  }
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+  delete rootProject.buildDir
 }
