@@ -1,138 +1,45 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:1.4.1"
-        classpath "com.github.dcendents:android-maven-plugin:1.2"
-    }
-}
-
-apply plugin: "com.android.library"
-
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-
-//////////////////////////////// Upload to BinTray ////////////////////////////////
-group = "com.minyushov.carousellayoutmanager"
-final def siteUrl = 'https://github.com/minyushov/CarouselLayoutManager'
-final def gitUrl = "https://github.com/minyushov/CarouselLayoutManager.git"
-// This is the library version used when deploying the artifact
-version = "1.1.15"
-
-final Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ["archives"]
-    pkg {
-        repo = "carousel"
-        name = "carousel"
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-    }
-}
-
-install {
-    repositories.mavenInstaller {
-        pom.project {
-            packaging 'jar'
-
-            // Add your description here
-            name "CarouselLayoutManager for RecyclerView in Android. Description is here: https://github.com/minyushov/CarouselLayoutManager"
-            url siteUrl
-
-            // Set your license
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                }
-            }
-            developers {
-                developer {
-                    id 'azoft'
-                    name 'azoft'
-                    email 'android-mobile@azoft.com'
-                }
-            }
-            scm {
-                connection gitUrl
-                developerConnection gitUrl
-                url siteUrl
-
-            }
-        }
-    }
-}
-//////////////////////////////// Upload to BinTray ////////////////////////////////
+apply plugin: 'com.android.library'
+apply plugin: 'com.minyushov.bintray'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
-    resourcePrefix "carousellayoutmanager__"
+	resourcePrefix "carousellayoutmanager__"
+	compileSdkVersion androidCompileSdkVersion
 
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 27
-        versionCode 1
-        versionName version
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-        }
-    }
-    configurations {
-        javadocDeps
-    }
+	defaultConfig {
+		minSdkVersion androidMinSdkVersion
+		targetSdkVersion androidTargetSdkVersion
+	}
+
+	configurations {
+		documentation
+	}
+
+	libraryVariants.all {
+		it.generateBuildConfig.enabled = false
+	}
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
-    javadocDeps 'com.android.support:support-annotations:27.1.1'
-    javadocDeps 'com.android.support:recyclerview-v7:27.1.1'
+	implementation "com.android.support:design:$androidSupportLibraryVersion"
+	implementation "com.android.support:recyclerview-v7:$androidSupportLibraryVersion"
+	documentation "com.android.support:support-annotations:27.1.1"
 }
 
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = "sources"
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    classpath += configurations.javadocDeps
-    failOnError false
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = "javadoc"
-    from javadoc.destinationDir
-}
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
-// Excluding aar artifacts from uploading
-configurations.archives.artifacts.with { archives ->
-    for (def iter = archives.iterator(); iter.hasNext();) {
-        if (iter.next().file =~ 'aar') iter.remove();
-    }
+bintrayUpload {
+	dryRun = true
+	repo = "android"
+	groupId = "com.minyushov.android"
+	artifactId = "carousel"
+	version = "1.1.15"
+	vcsUrl = "https://github.com/minyushov/CarouselLayoutManager.git"
+	license = "Apache-2.0"
+	docsSettings {
+		failOnError false
+		classpath += configurations.documentation
+		options {
+			docTitle "CarouselLayoutManager for RecyclerView in Android ${bintrayUpload.version}"
+			windowTitle "CarouselLayoutManager ${bintrayUpload.version}"
+			links "https://developer.android.com/reference/"
+		}
+	}
 }

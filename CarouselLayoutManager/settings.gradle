@@ -1,1 +1,2 @@
-include ':carousel', ':sample'
+include ':carousel'
+include ':sample'
