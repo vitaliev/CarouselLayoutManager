@@ -1,8 +1,6 @@
 CarouselLayoutManager for RecyclerView
 ======================
 
-[![Download](https://api.bintray.com/packages/minyushov/android/carousel/images/download.svg)](https://bintray.com/minyushov/android/carousel/_latestVersion)
-
 ![Example](resources/carousel_work_small.gif "working example")
 
 ![Example](resources/carousel_double_work_small.gif "working example")
@@ -15,9 +13,12 @@ repositories {
 }
 
 dependencies {
-  implementation 'com.minyushov.android:carousel:1.1.14'
+  implementation 'com.minyushov.android:carousel:version'
 }
 ```
+
+Please replace `version` with the latest version: [![Download](https://api.bintray.com/packages/minyushov/android/carousel/images/download.svg)](https://bintray.com/minyushov/android/carousel/_latestVersion)
+
 
 ## Description
 
