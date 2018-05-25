@@ -19,4 +19,5 @@ android {
 dependencies {
   implementation project(':carousel')
   implementation "com.android.support:appcompat-v7:$androidSupportLibraryVersion"
+  implementation "com.android.support:design:$androidSupportLibraryVersion"
 }
