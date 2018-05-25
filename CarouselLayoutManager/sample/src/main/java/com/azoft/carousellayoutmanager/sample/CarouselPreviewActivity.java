@@ -36,8 +36,8 @@ public class CarouselPreviewActivity extends AppCompatActivity {
         final TestAdapter adapter = new TestAdapter();
 
         // create layout manager with needed params: vertical, cycle
-        initRecyclerView(binding.listHorizontal, new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, false), adapter);
-        initRecyclerView(binding.listVertical, new CarouselLayoutManager(CarouselLayoutManager.VERTICAL, true), adapter);
+        initRecyclerView(binding.listHorizontal, new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, false, false), adapter);
+        initRecyclerView(binding.listVertical, new CarouselLayoutManager(CarouselLayoutManager.VERTICAL, true, false), adapter);
 
         // fab button will add element to the end of the list
         binding.fabScroll.setOnClickListener(new View.OnClickListener() {
