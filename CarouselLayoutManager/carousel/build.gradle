@@ -21,7 +21,7 @@ android {
 
 dependencies {
 	implementation "com.android.support:recyclerview-v7:$androidSupportLibraryVersion"
-	documentation "com.android.support:support-annotations:27.1.1"
+	documentation "com.android.support:support-annotations:$androidSupportLibraryVersion"
 }
 
 bintrayUpload {
